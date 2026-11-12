@@ -49,7 +49,7 @@ export function PanelOverlays() {
     // and the red-team environment gate next to the dock.
     h(WelcomeNotice, {
       repo: __COMMUNITY__
-        ? "https://github.com/kingcharleslzy-ai/dsh-purge"
+        ? "https://github.com/liuma3995-dot/dsh-purge"
         : undefined,
     }),
     h(EnvAdaptSendGate),

@@ -1,3 +1,11 @@
+# 1.6.94
+
+- **DSH 0.2.2-rc.2 子代理兼容修复**：`list_agents` 已合并进 `@deepseek-ai/dsh-tool-subagent-control` 主入口，红队与无限制预设不再尝试加载不存在的 `/list-agents` 子入口。当前宿主可正常注册红队预设，不再出现 `tool-subagent-list-agents: never started`。
+- 保留 `0.2.2-rc.1` 的同类兼容逻辑，并补充 `0.2.2-rc.2` 回归测试。
+- 发布源切换到本维护仓库；保留 `kingcharleslzy-ai/dsh-purge` 作为上游同步和历史引用的 `upstream` 来源。
+
+验证：`test/preset-compat.test.mjs` 7/7 通过；在 DSH Desktop `0.2.2-rc.2` 上确认红队预设进入 `registered` 状态并可从模式菜单选择。
+
 # 1.6.93
 
 - **Windows 换包诊断（#193）**：broker 与助手进程的退出码分开记录。助手提前退出或被 Job Object 回收时，日志写明 `child_exit_code`；拿不到进程句柄时记为 `unknown`，不再把启动器的 `code=1` 当成助手原因。

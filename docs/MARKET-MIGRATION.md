@@ -1,6 +1,6 @@
 # 从插件市场安装或迁移 Purge
 
-首次安装可在 dsh-market 搜索 `kingcharleslzy-ai/dsh-purge`。确认仓库作者和包名 `dsh-purge-community`；同名镜像不是同一发行来源。不要运行 `dsh plugin add dsh-purge` 或裸包名 `dsh-purge-community`：本项目通过 GitHub Releases 发行，不依赖这两个 npm 名称。
+首次安装可核对 `liuma3995-dot/dsh-purge` 的正式 GitHub Releases。确认仓库作者和包名 `dsh-purge-community`；同名镜像不是同一发行来源。不要运行 `dsh plugin add dsh-purge` 或裸包名 `dsh-purge-community`：本项目通过 GitHub Releases 发行，不依赖这两个 npm 名称。
 
 ## 已装旧版：直接迁移，不先卸载
 

@@ -52,7 +52,7 @@ function setup() {
     JSON.stringify({
       name: PACKAGE,
       version: "1.2.0",
-      repository: { url: "https://github.com/kingcharleslzy-ai/dsh-purge.git" },
+      repository: { url: "https://github.com/liuma3995-dot/dsh-purge.git" },
     }),
   );
   const candidate = path.join(home, "candidate.tgz");
@@ -328,8 +328,8 @@ test("release checksum failure stops before installation", async () => {
       installRelease(f.manager, {
         ref: "v1.2.0",
         version: "1.2.0",
-        asset: "https://github.com/kingcharleslzy-ai/dsh-purge/releases/download/v1.2.0/dsh-purge-community-1.2.0.tgz",
-        sums: "https://github.com/kingcharleslzy-ai/dsh-purge/releases/download/v1.2.0/SHA256SUMS.txt",
+        asset: "https://github.com/liuma3995-dot/dsh-purge/releases/download/v1.2.0/dsh-purge-community-1.2.0.tgz",
+        sums: "https://github.com/liuma3995-dot/dsh-purge/releases/download/v1.2.0/SHA256SUMS.txt",
       }, globalThis.fetch),
       /SHA256/,
     );
