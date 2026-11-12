@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
+const HISTORICAL_REPOSITORY='kingcharleslzy-ai/dsh-purge';
 export async function runAliasAcceptance({runtime,cli,legacy,archive,temp}) {
 const run = (exe, args, env, label) => {
   try {
@@ -20,7 +21,7 @@ const {Maintenance,validateArchive}=await import(pathToFileURL(path.join(candida
 const {installedCommunityPackage}=await import(pathToFileURL(path.join(candidateRoot,'lib/installed-package.js')));
 const {installedYaml}=await import(pathToFileURL(path.join(candidateRoot,'lib/market-migration.js')));
 const {createUpdateController,savePreferences}=await import(pathToFileURL(path.join(candidateRoot,'lib/update-policy.js')));
-const baseline=await validateArchive(legacy),candidate=await validateArchive(archive),reports=[];
+const baseline=await validateArchive(legacy,undefined,HISTORICAL_REPOSITORY),candidate=await validateArchive(archive),reports=[];
 for(const alias of ['dsh-purge-community','dsh-purge']){
   const home=path.join(temp,alias,'home');fs.mkdirSync(home,{recursive:true});
   const env={...process.env,DSH_HOME:home,DSH_PROFILE:'web',DSH_SURFACE:'web',PURGE_DSH_CLI:cli,ELECTRON_RUN_AS_NODE:'1',DSH_BASE:'',PURGE_PROFILE_DIR:'',NPM_CONFIG_CACHE:path.join(temp,'npm-cache'),XDG_CACHE_HOME:path.join(temp,'cache')};
@@ -71,7 +72,7 @@ for(const alias of ['dsh-purge-community','dsh-purge']){
   const protectedFiles=[config,prompt,path.join(profile,'package.json'),path.join(profile,'pnpm-lock.yaml')];
   const bytes=protectedFiles.map(p=>fs.readFileSync(p));
   const verifier=m.verifier;m.verifier=async()=>{throw Error('injected verification failure')};
-  for(const operation of [()=>m.install(legacy),()=>m.rollback(saved.id)]){
+  for(const operation of [()=>m.install(legacy,{expectedRepository:HISTORICAL_REPOSITORY}),()=>m.rollback(saved.id)]){
     await assert.rejects(operation,/已恢复/);
     protectedFiles.forEach((p,i)=>assert.deepEqual(fs.readFileSync(p),bytes[i]));
     assert.equal(installedCommunityPackage(profile).package.version,candidate.version);

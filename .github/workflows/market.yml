@@ -32,10 +32,22 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
       - run: node market/validate.mjs market-dist/index.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugin-market-index
+          path: market-dist
+      - name: Explain private-repository Pages
+        if: github.event.repository.visibility != 'public'
+        run: echo "::notice::GitHub Pages is unavailable for this private repository. The validated market index is attached as a workflow artifact."
       - uses: actions/configure-pages@v5
+        if: github.event.repository.visibility == 'public'
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
+        if: github.event.repository.visibility == 'public'
         with:
           path: market-dist
       - name: Deploy index
         id: deployment
+        if: github.event.repository.visibility == 'public'
         uses: actions/deploy-pages@v4

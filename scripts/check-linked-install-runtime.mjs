@@ -7,6 +7,7 @@ import {verifyInstalledPackage} from '../lib/rollback-transaction.js';
 import {removeTreeNoFollowSync} from '../lib/remove-tree.js';
 const [baseline,candidate]=process.argv.slice(2).map(p=>path.resolve(p));
 const cli=process.env.PURGE_LINK_TEST_CLI,pnpm=process.env.PURGE_LINK_TEST_PNPM;
+const HISTORICAL_REPOSITORY='kingcharleslzy-ai/dsh-purge';
 if(!cli||!pnpm||!baseline||!candidate)throw Error('Explicit isolated CLI, pnpm script and baseline/candidate archives required');
 const root=fs.mkdtempSync(path.join(os.tmpdir(),'purge-linked-install-'));
 const versions={electron:process.versions.electron||null,node:process.versions.node,pnpm:execFileSync(process.execPath,[pnpm,'--version'],{env:{...process.env,ELECTRON_RUN_AS_NODE:'1'},encoding:'utf8'}).trim()};
@@ -32,15 +33,15 @@ try{
   const sums=()=>Object.fromEntries(fs.readdirSync(external).sort().map(n=>[n,createHash('sha256').update(fs.readFileSync(path.join(external,n))).digest('hex')]));
   const expected=sums();
   const check=stage=>{assert.deepEqual(sums(),expected,stage+' external bytes');assert.deepEqual(fs.readFileSync(config),configBefore);assert.equal(fs.readFileSync(prompt,'utf8'),'PRIVATE PROMPT SENTINEL');stages.push(stage)};
-  const m=new Maintenance({home,profile,root:path.join(links,PACKAGE)}),a=await validateArchive(baseline),b=await validateArchive(candidate);
-  let result=await m.install(baseline);assert.deepEqual(result.cleanup_warnings,[]);check('baseline install');
+  const m=new Maintenance({home,profile,root:path.join(links,PACKAGE)}),a=await validateArchive(baseline,undefined,HISTORICAL_REPOSITORY),b=await validateArchive(candidate);
+  let result=await m.install(baseline,{expectedRepository:HISTORICAL_REPOSITORY});assert.deepEqual(result.cleanup_warnings,[]);check('baseline install');
   const saved=await m.backup('linked-runtime');
   result=await m.install(candidate);assert.deepEqual(result.cleanup_warnings,[]);await verifyInstalledPackage(profile,b);check('upgrade');
   result=await m.rollback(saved.id);assert.deepEqual(result.cleanup_warnings,[]);await verifyInstalledPackage(profile,a);check('rollback');
   await m.install(candidate);check('re-upgrade');
   const manifest=fs.readFileSync(path.join(profile,'package.json')),lock=fs.readFileSync(path.join(profile,'pnpm-lock.yaml'));
   m.verifier=async()=>{throw Error('injected verification failure')};
-  for(const [stage,op] of [['failed install',()=>m.install(baseline)],['failed rollback',()=>m.rollback(saved.id)]]){
+  for(const [stage,op] of [['failed install',()=>m.install(baseline,{expectedRepository:HISTORICAL_REPOSITORY})],['failed rollback',()=>m.rollback(saved.id)]]){
    await assert.rejects(op,/已恢复/);check(stage);
    assert.deepEqual(fs.readFileSync(path.join(profile,'package.json')),manifest);assert.deepEqual(fs.readFileSync(path.join(profile,'pnpm-lock.yaml')),lock);await verifyInstalledPackage(profile,b);
   }

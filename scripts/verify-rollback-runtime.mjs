@@ -13,12 +13,13 @@ import {normalizeHostBase,resolveDshCli} from '../lib/instance.js';
 const home=process.env.PURGE_TEST_HOME, name=process.env.PURGE_TEST_PROFILE;
 const host=process.env.PURGE_TEST_HOST_BASE || ''; // Explicit isolated npm scope for three-root acceptance.
 const [baseline,candidate]=process.argv.slice(2).map(p=>path.resolve(p));
+const HISTORICAL_REPOSITORY='kingcharleslzy-ai/dsh-purge';
 if(!home || !name || (!process.env.PURGE_DSH_CLI && !host) || !baseline || !candidate) throw Error('Explicit isolated home/profile/CLI (or nested host base) and baseline/candidate archives are required');
 const profile=path.join(home,'profiles',name), root=path.join(profile,'node_modules',PACKAGE);
 const manifest=JSON.parse(fs.readFileSync(path.join(profile,'package.json')));
 if(Object.keys(manifest.dependencies||{}).length || fs.existsSync(root)) throw Error('Use a new empty isolated profile, never an existing user installation');
 process.env.DSH_HOME=home;process.env.DSH_PROFILE=name;process.env.PURGE_PROFILE_DIR=profile;
-const a=await validateArchive(baseline),b=await validateArchive(candidate);
+const a=await validateArchive(baseline,undefined,HISTORICAL_REPOSITORY),b=await validateArchive(candidate);
 const m=new Maintenance({home,profile,root,aiBase:host});
 let nested='',packageRoot='';
 if(host) {
@@ -28,7 +29,7 @@ if(host) {
   const expected=resolveDshCli({aiBase:host}).cli;
   for(const base of [host,packageRoot,nested])assert.equal(resolveDshCli({aiBase:base}).cli,expected);
 }
-await m.install(baseline);await verifyInstalledPackage(profile,a);
+await m.install(baseline,{expectedRepository:HISTORICAL_REPOSITORY});await verifyInstalledPackage(profile,a);
 const snapshot=await m.backup('runtime-acceptance');
 if(host)m.aiBase=nested;
 savePreferences(home,{autoCheck:true,autoInstall:true,intervalHours:24});
