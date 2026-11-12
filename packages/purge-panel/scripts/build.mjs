@@ -28,7 +28,7 @@ const result = await build({
     __COMMUNITY__: JSON.stringify(community),
   },
 });
-const output =
+const output = (
   "// Generated from src/ by npm run build. Do not edit.\n" +
   "// Derived UI: YuJunZhiXue/dsh-purge (MIT), see LICENSE.\n" +
   "(()=>{const __PURGE_MODULE_URL__ = typeof document !== 'undefined' ? document.currentScript?.src : undefined;\n" +
@@ -37,7 +37,8 @@ const output =
   ",factory:(require)=>{\n" +
   "var module={exports:{}};var exports=module.exports;\n" +
   result.outputFiles[0].text +
-  "\nreturn module.exports;\n}});})();\n";
+  "\nreturn module.exports;\n}});})();\n"
+).replace(/\r\n/g, "\n");
 const dest = path.join(community ? projectRoot : root, "client.js");
 if (process.argv.includes("--check")) {
   if ((await fs.readFile(dest, "utf8")) !== output)
