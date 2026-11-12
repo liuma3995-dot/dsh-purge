@@ -10880,7 +10880,7 @@ function CommunityMaintenance() {
       h(
         "a",
         {
-          href: "https://github.com/kingcharleslzy-ai/dsh-purge/releases",
+          href: "https://github.com/liuma3995-dot/dsh-purge/releases",
           target: "_blank",
           rel: "noreferrer"
         },
@@ -14982,7 +14982,7 @@ function PanelOverlays() {
     // Restored from 1.1.71 apply(): shell.overlay carried the welcome notice
     // and the red-team environment gate next to the dock.
     h(WelcomeNotice, {
-      repo: false ? "https://github.com/kingcharleslzy-ai/dsh-purge" : void 0
+      repo: false ? "https://github.com/liuma3995-dot/dsh-purge" : void 0
     }),
     h(EnvAdaptSendGate),
     st.authOpen ? h(AuthGate, { pending: st.pending }) : null
