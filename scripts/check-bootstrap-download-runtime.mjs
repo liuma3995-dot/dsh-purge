@@ -11,6 +11,7 @@ try {
   for(const fallback of [false,true]) {
     const logs=[];
     const result=await bootstrapInstall({home,cli:process.execPath,version,dryRun:true,
+      releaseRepo:'kingcharleslzy-ai/dsh-purge',
       ...(fallback?{request:async()=>{throw Object.assign(new TypeError('injected fetch-only network failure'),{code:'ENETUNREACH'});}}:{}),
       log:message=>{logs.push(message);console.log(message);},run:async()=>assert.fail('dry run must not invoke installation'),
     });

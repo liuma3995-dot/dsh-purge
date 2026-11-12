@@ -322,7 +322,8 @@ export function prepareLinuxHost(cli, { userHome = os.homedir(), log = console.l
 export async function bootstrapInstall(options = {}) {
   const { request = fetch, download = {}, run = exec, log = console.log, executable = process.execPath, platform = process.platform,
     mode = process.env.PURGE_INSTALL_MODE || "desktop",
-    home = process.env.DSH_HOME || path.join(os.homedir(), ".dsh"), profile = process.env.DSH_PROFILE || "", dryRun = false } = options;
+    home = process.env.DSH_HOME || path.join(os.homedir(), ".dsh"), profile = process.env.DSH_PROFILE || "", dryRun = false,
+    releaseRepo = repo } = options;
   if (!["web", "desktop"].includes(mode)) throw Error("Invalid installation mode");
   if (Number(process.versions.node.split(".")[0]) < 18) throw Error("Node >=18 is required");
   let cli = options.cli || (mode === "web" ? webCli() : desktopCli(executable, platform));
@@ -334,13 +335,13 @@ export async function bootstrapInstall(options = {}) {
   let version = options.version || (local ? /^dsh-purge-community-(\d+\.\d+\.\d+)\.tgz$/.exec(path.basename(options.archiveFile))?.[1] : undefined);
   if (local && !version) throw Error("Specify --version for this local archive");
   if (!version) {
-    const release = JSON.parse((await downloadReleaseFile(`https://api.github.com/repos/${repo}/releases/latest`, 1024 * 1024, { ...download, request, log, stage: "metadata" })).toString("utf8"));
+    const release = JSON.parse((await downloadReleaseFile(`https://api.github.com/repos/${releaseRepo}/releases/latest`, 1024 * 1024, { ...download, request, log, stage: "metadata" })).toString("utf8"));
     if (release.draft || release.prerelease) throw Error("Latest release is not stable");
     version = String(release.tag_name || "").replace(/^v/, "");
   }
   if (!/^\d+\.\d+\.\d+$/.test(version)) throw Error("Invalid release version");
   const filename = `dsh-purge-community-${version}.tgz`;
-  const base = `https://github.com/${repo}/releases/download/v${version}`;
+  const base = `https://github.com/${releaseRepo}/releases/download/v${version}`;
   log(`${local ? "Verifying local" : "Downloading"} Purge Community ${version}...`);
   if (local && fs.statSync(options.archiveFile).size > 50 * 1024 * 1024) throw Error("Release file too large");
   const archive = local ? fs.readFileSync(options.archiveFile) : await downloadReleaseFile(`${base}/${filename}`, 50 * 1024 * 1024, { ...download, request, log, stage: "archive", budget: archiveDownloadBudget() });
@@ -357,7 +358,7 @@ export async function bootstrapInstall(options = {}) {
     if (!listing.stdout.trim() || listing.stdout.trim().split(/\r?\n/).some(name => !/^package\//.test(name) || name.includes("\\") || name.split("/").some(part => part === ".."))) throw Error("Invalid archive paths");
     await run(tar, ["-xzf", filename], { cwd: tmp, timeout: 30000, windowsHide: true });
     const manifest = JSON.parse(fs.readFileSync(path.join(tmp, "package/package.json"), "utf8"));
-    if (manifest.name !== "dsh-purge-community" || manifest.version !== version || manifest.repository?.url !== `git+https://github.com/${repo}.git`) throw Error("Release package identity mismatch");
+    if (manifest.name !== "dsh-purge-community" || manifest.version !== version || manifest.repository?.url !== `git+https://github.com/${releaseRepo}.git`) throw Error("Release package identity mismatch");
     const host = platform === "linux" && mode === "web" ? prepareLinuxHost(cli, { userHome: options.userHome, log }) : null;
     if (host) cli = host.cli;
     const result = await run(executable, [path.join(tmp, "package/bin/community.js"), "migrate", file], {
