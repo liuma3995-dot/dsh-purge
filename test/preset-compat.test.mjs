@@ -187,6 +187,11 @@ test("list_agents is adapted only for the verified merged provider in the same g
   for (const rows of [[legacy], [{...main,disabled:true}, legacy], [main,{...legacy,config:{}}], [main,main,legacy], [{...main,filter:"x"},legacy]]) {
     assert.deepEqual(adapt(rows), rows);
   }
+  fs.writeFileSync(path.join(dir, "package.json"), JSON.stringify({name, version: "0.2.2-rc.2", exports: {".": "./index.js", "./package.json": "./package.json"}}));
+  assert.deepEqual(adapt([main, legacy]), [main]);
+  for (const rows of [[legacy], [{...main,disabled:true}, legacy], [main,{...legacy,config:{}}], [main,main,legacy], [{...main,filter:"x"},legacy]]) {
+    assert.deepEqual(adapt(rows), rows);
+  }
   const before = {plugins:[main, legacy]};
   assert.equal(adaptListAgents(before, null), before);
   const opaqueRoot = path.join(root, "opaque");
