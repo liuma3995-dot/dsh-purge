@@ -23,6 +23,15 @@ const result = await build({
   treeShaking: true,
   legalComments: "inline",
   loader: { ".css": "text" },
+  plugins: [{
+    name: "normalize-source-line-endings",
+    setup(builder) {
+      builder.onLoad({ filter: /\.(js|mjs|css)$/ }, async args => ({
+        contents: (await fs.readFile(args.path, "utf8")).replace(/\r\n/g, "\n"),
+        loader: args.path.endsWith(".css") ? "text" : "js",
+      }));
+    },
+  }],
   define: {
     __PANEL_VERSION__: JSON.stringify(pkg.version),
     __COMMUNITY__: JSON.stringify(community),
