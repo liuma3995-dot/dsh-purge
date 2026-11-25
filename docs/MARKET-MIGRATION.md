@@ -14,7 +14,7 @@
 ### Agent 必须注意
 
 - 官方宿主 CLI 的安装规则一致，但第三方市场可能增加目录筛选、重复安装保护、来源转换和加载验证。市场网页列出插件，不等于其 `index.json` 包含该插件。
-- 缺少 npm 发布不等于没有安装包。独立索引是 <https://kingcharleslzy-ai.github.io/dsh-purge/index.json>，Git 版本固定完整提交 SHA。第三方索引遗漏应修生成器，不能伪造 npm 元数据或降低完整性校验。
+- 缺少 npm 发布不等于没有安装包。独立索引是 <https://liuma3995-dot.github.io/dsh-purge/index.json>，Git 版本固定完整提交 SHA。第三方索引遗漏应修生成器，不能伪造 npm 元数据或降低完整性校验。
 - 迁移仅识别 `dsh-purge`、redteam、presets、store、ui 的标准入口。手动 `insert`、未知 ID、动态包名、错误 YAML 保持失败并恢复依赖；报告具体入口冲突，不能删参数或盲目禁用来消除错误。
 - `migrated_references` 是实际改写的包引用数量。0 不代表失败：没有显式旧包覆盖时无需改配置。成功后还需检查启用列表只有社区包、配置合成无重复 ID、用户配置值仍在。
 - 回滚使用 `purge-community rollback <backup_id>`，恢复旧包入口并保留当前配置值。配置被并发修改、迁移记录损坏、恢复失败应明确报告并保留恢复目录；不能把备份存在当作回滚成功。
